@@ -18,7 +18,7 @@ var encodeUrl = (url) => {
     encodedUrl = serialize.toString(16);
 
     if (encodedStorage.length > 0) {
-        let isDuplicate = encodedStorage.find(el => el.encoded == encodeUrl) !== undefined;
+        let isDuplicate = encodedStorage.find(el => el.encoded == encodedUrl) !== undefined;
         if (isDuplicate) {
             encodeUrl(url);
             return;
