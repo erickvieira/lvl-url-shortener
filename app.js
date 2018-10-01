@@ -1,33 +1,26 @@
+// obtendo pacotes principais
 const express = require("express");
 const bodyParser = require("body-parser");
 const routes = require("./routes/routes.js");
-const ShortenedURLElement = require("./models/shortened-url-element");
 const app = express();
-
-const firebase = require('firebase');
-firebase.initializeApp({
-    apiKey: "AIzaSyDw9P5YtxruftU2CljM7cAmn5z6MzaULIU",
-    authDomain: "url-shortener-7442a.firebaseapp.com",
-    databaseURL: "https://url-shortener-7442a.firebaseio.com",
-    projectId: "url-shortener-7442a",
-    storageBucket: "url-shortener-7442a.appspot.com",
-    messagingSenderId: "21104939841"
-});
-
+// definindo classes:
+const FirebaseDatabase = require("./models/firebase-database");
+const ShortenedURLElement = require("./models/shortened-url-element");
+// atualizando base
 var shortenedCollection = [];
-
-const reader = firebase.database().ref("encodeList");
-reader.on('value', (snapshot) => {
-    const storage = snapshot.val();
-    console.log(storage);
-    shortenedCollection = storage['list'];
-});
+// inicializando serviços do firebase
+const database = new FirebaseDatabase(
+    shortenedCollection,
+    (storage) => {
+        shortenedCollection = storage ? storage['shortUrls'] : []
+    }
+);
 
 const encodeUrl = (url, hasSecurity) => {
     serialize = Math.floor((Math.random() * 1000000) + 9999999);
     shortened = serialize.toString(16);
     if (shortenedCollection.length > 0) {
-        let isDuplicate = shortenedCollection.find(el => el.shortId == shortened) !== undefined;
+        let isDuplicate = shortenedCollection.find(el => el.short_id == shortened);
         if (isDuplicate) {
             encodeUrl(url);
         }
@@ -35,21 +28,20 @@ const encodeUrl = (url, hasSecurity) => {
     let sce = new ShortenedURLElement(url, shortened, hasSecurity);
     if (shortenedCollection.length <= 9999999) {
         shortenedCollection.push(sce);
-        firebase.database().ref('encodeList').push({ list: shortenedCollection }).then(
-            console.log('salvo com sucesso!')
-        );
+        database.updateStorage(shortenedCollection);
         return sce;
     } else return { error: "Infelizmente atingimos o limite de URLs encurtadas!", code: 3 }
 };
 const decodeUrl = (shortened) => {
     let notFound = { error: "A url não foi encontrada ou está expirada!", code: 2 };
-    let url = shortenedCollection.find(sce => sce.shortId == shortened);
+    let url = shortenedCollection.find(sce => sce.short_id == shortened);
     if (url) {
-        let encodeDate = new Date(url.checkIn);
+        let encodeDate = new Date(url.check_in);
         let expireLimit = new Date();
         expireLimit.setDate(expireLimit.getDate() + 5);
         if (encodeDate >= expireLimit) {
             shortenedCollection = shortenedCollection.slice(url, 1);
+            database.updateStorage(shortenedCollection);
             return notFound;
         } else return url;
     } else {
@@ -62,7 +54,7 @@ const getAll = () => {
         return { error: "Nenhuma URL foi encurtada ainda!", code: 1 };
     }
     shortenedCollection.forEach((sce) => {
-        urls.push({ shortId: sce.shortId, url: sce.originalUrl });
+        urls.push({ short_id: sce.short_id, url: sce.original_url });
     }); return urls;
 };
 const urlTools = { 

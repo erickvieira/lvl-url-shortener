@@ -1,16 +1,15 @@
-var ShortenedURLElement = class {
-    constructor(url, shortId, hasSecurity) {
-        this.originalUrl = '';
-        this.shortId = '';
-        this.type = hasSecurity ? 'https' : 'http';
-        if (url && typeof url == typeof this.originalUrl) {
-            this.originalUrl = url;
+'use strict';
+module.exports = class ShortenedURLElement {
+    constructor(url, short_id, has_security) {
+        this.original_url = '';
+        this.short_id = '';
+        this.type = has_security ? 'https' : 'http';
+        if (url && typeof url == typeof this.original_url) {
+            this.original_url = url;
         }
-        if (shortId && typeof shortId == typeof this.shortId) {
-            this.shortId = shortId;
+        if (short_id && typeof short_id == typeof this.short_id) {
+            this.short_id = short_id;
         }
-        this.checkIn = Date.now();
+        this.check_in = Date.now();
     }
 }
-
-module.exports.ShortenedURLElement = ShortenedURLElement;
