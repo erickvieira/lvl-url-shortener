@@ -12,12 +12,14 @@ var shortenedCollection = [];
 const database = new FirebaseDatabase(
     shortenedCollection,
     (storage) => {
-        shortenedCollection = storage ? storage['shortUrls'] : []
+        shortenedCollection = storage ? storage : []
     }
 );
 
 const encodeUrl = (url, hasSecurity) => {
-    serialize = Math.floor((Math.random() * 1000000) + 9999999);
+    const MIN = 1000000;
+    const MAX = 9999999;
+    serialize = Math.floor((Math.random() * MIN) + MAX);
     shortened = serialize.toString(16);
     if (shortenedCollection.length > 0) {
         let isDuplicate = shortenedCollection.find(el => el.short_id == shortened);
@@ -26,7 +28,7 @@ const encodeUrl = (url, hasSecurity) => {
         }
     }
     let sce = new ShortenedURLElement(url, shortened, hasSecurity);
-    if (shortenedCollection.length <= 9999999) {
+    if (shortenedCollection.length < MAX) {
         shortenedCollection.push(sce);
         database.updateStorage(shortenedCollection);
         return sce;

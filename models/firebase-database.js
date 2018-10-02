@@ -8,7 +8,7 @@ module.exports = class FirebaseDatabase {
 
     init() {
         this.admin = require('firebase-admin');
-        this.serviceAccount = require("./../firebase-auth/lvl5-url-shortener-firebase-adminsdk-g0qzp-56a64758ac.json");
+        this.serviceAccount = require("./../keys/firebase-auth/lvl5-url-shortener-firebase-adminsdk-g0qzp-56a64758ac.json");
         this.admin.initializeApp({
             credential: this.admin.credential.cert(this.serviceAccount),
             databaseURL: "https://lvl5-url-shortener.firebaseio.com",
@@ -19,7 +19,7 @@ module.exports = class FirebaseDatabase {
             messagingSenderId: "762397459089"
         });
         this.db = this.admin.database();
-        this.ref = this.db.ref("shortened_collection/QDF50cvMpsNdeBaqtc7v");
+        this.ref = this.db.ref("url_storage");
         this.ref.on('value', (snapshot) => {
             const storage = snapshot.val();
             console.log('[>] STORAGE', storage);
@@ -32,7 +32,7 @@ module.exports = class FirebaseDatabase {
     }
 
     updateStorage(shortenedCollection) {
-        this.ref.child('shortUrls').set(shortenedCollection).then(
+        this.ref.set(shortenedCollection).then(
             console.log(`[<] Sincronizado!`)
         ).catch(error => console.log(`[<] ERROR: ${error}`));
     }
