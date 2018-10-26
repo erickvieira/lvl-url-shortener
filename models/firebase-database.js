@@ -1,8 +1,7 @@
 'use strict';
 module.exports = class FirebaseDatabase {
-    constructor(shortenedCollection, updateCollection) {
-        this.updateCollection = updateCollection;
-        this.shortenedCollection = shortenedCollection;
+    constructor(updateLocalStorage) {
+        this.updateLocalStorage = updateLocalStorage;
         this.init();
     }
 
@@ -23,16 +22,12 @@ module.exports = class FirebaseDatabase {
         this.ref.on('value', (snapshot) => {
             const storage = snapshot.val();
             console.log('[>] STORAGE', storage);
-            this.updateCollection(storage);
+            this.updateLocalStorage(storage);
         });
     }
 
-    getCollection() {
-        return this.shortenedCollection;
-    }
-
-    updateStorage(shortenedCollection) {
-        this.ref.set(shortenedCollection).then(
+    updateRemoteStorage(currentChangesCollection) {
+        this.ref.set(currentChangesCollection).then(
             console.log(`[<] Sincronizado!`)
         ).catch(error => console.log(`[<] ERROR: ${error}`));
     }

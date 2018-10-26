@@ -10,10 +10,7 @@ const ShortenedURLElement = require("./models/shortened-url-element");
 var shortenedCollection = [];
 // inicializando serviços do firebase
 const database = new FirebaseDatabase(
-    shortenedCollection,
-    (storage) => {
-        shortenedCollection = storage ? storage : []
-    }
+    (storage) => shortenedCollection = storage ? storage : []
 );
 
 const encodeUrl = (url, hasSecurity) => {
@@ -30,7 +27,7 @@ const encodeUrl = (url, hasSecurity) => {
     let sce = new ShortenedURLElement(url, shortened, hasSecurity);
     if (shortenedCollection.length < MAX) {
         shortenedCollection.push(sce);
-        database.updateStorage(shortenedCollection);
+        database.updateRemoteStorage(shortenedCollection);
         return sce;
     } else return { error: "Infelizmente atingimos o limite de URLs encurtadas!", code: 3 }
 };
@@ -43,7 +40,7 @@ const decodeUrl = (shortened) => {
         expireLimit.setDate(expireLimit.getDate() + 5);
         if (encodeDate >= expireLimit) {
             shortenedCollection = shortenedCollection.slice(url, 1);
-            database.updateStorage(shortenedCollection);
+            database.updateRemoteStorage(shortenedCollection);
             return notFound;
         } else return url;
     } else {
